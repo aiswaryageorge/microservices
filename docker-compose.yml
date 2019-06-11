@@ -1,0 +1,62 @@
+version: "2"
+services:
+
+  apigateway:
+    build: Zuul-Api-Service/
+    restart: always
+    network_mode: host
+    depends_on:
+      - eurekaserver
+    ports:
+      - 8060:8060
+    expose:
+      - 8060
+
+  eurekaserver:
+    build: eurekaserver/
+    restart: always
+    network_mode: host
+    ports:
+      - 8671:8671
+    expose:
+      - 8671
+
+  configserverservice:
+    build: config-server-service/
+    restart: always
+    network_mode: host
+    ports:
+      - 8888:8888
+    expose:
+      - 8888
+
+  mongo:
+    image: mongo
+    container_name: mongo-container
+    environment:
+      MONGO_DATABASE: trackDb
+
+  musicservice:
+    build: Music-Service/
+    restart: always
+    network_mode: host
+    depends_on:
+      - mongo
+      - eurekaserver
+      - apigateway
+    ports:
+      - 9098:9098
+    expose:
+      - 9098
+
+  userservice:
+    build: User-Service/
+    restart: always
+    network_mode: host
+    depends_on:
+      - eurekaserver
+      - apigateway
+    ports:
+      - 8098:8098
+    expose:
+      - 8098
